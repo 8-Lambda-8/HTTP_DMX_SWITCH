@@ -11,6 +11,8 @@ IPAddress myDns(192, 168, 0, 1);
 
 EthernetClient client;
 
+void httpRequest(char* host, char* path);
+
 void setup() {
   Serial.begin(9600);
 
@@ -36,6 +38,39 @@ void setup() {
   delay(1000);
 }
 
+uint32_t requestTimer = 0;
 void loop() {
+  if (millis() - requestTimer > 10000) {
+    requestTimer = millis();
+    Serial.print("connecting to ");
+    Serial.print(server);
+    Serial.println("...");
+    // if you get a connection, report back via serial:
+    if (client.connect(server, 80)) {
+      Serial.print("connected to ");
+      Serial.println(client.remoteIP());
+      httpRequest(server, "/gw/kiosk/");
+    } else {
+      // if you didn't get a connection to the server:
+      Serial.println("connection failed");
+    }
+  }
+
+  while (client.available()) {
+    String line = client.readStringUntil('\r');
+    if (line.length() < 2) {
+      String data = client.readString();
+      Serial.println(data);
+    };
+  }
 }
 
+void httpRequest(char* host, char* path) {
+  client.print("GET ");
+  client.print(path);
+  client.println(" HTTP/1.1");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");
+  client.println();
+}
