@@ -59,7 +59,7 @@ void loop() {
     }
   }
 
-  while (client.available()) {
+  if (client.available()) {
     String line = client.readStringUntil('\r');
     if (line.length() < 2) {
       uint8_t data = client.readString().toInt();
@@ -79,6 +79,8 @@ void loop() {
       }
     };
   }
+
+  delay(1);
 }
 
 void httpRequest(char* host, char* path) {
