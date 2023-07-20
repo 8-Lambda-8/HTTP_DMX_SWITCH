@@ -13,6 +13,9 @@ EthernetClient client;
 
 void httpRequest(char* host, char* path);
 
+uint16_t chanels[] = {106, 113, 120, 127, 134, 141};
+uint8_t color[] = {255, 117, 17};
+
 void setup() {
   Serial.begin(9600);
 
@@ -59,8 +62,21 @@ void loop() {
   while (client.available()) {
     String line = client.readStringUntil('\r');
     if (line.length() < 2) {
-      String data = client.readString();
+      uint8_t data = client.readString().toInt();
       Serial.println(data);
+
+      for (auto&& chan : chanels) {
+        Serial.print(chan);
+        Serial.print(": ");
+        Serial.println(map(data, 0, 255, 0, color[0]));
+        Serial.print(chan + 1);
+        Serial.print(": ");
+        Serial.println(map(data, 0, 255, 0, color[1]));
+        Serial.print(chan + 2);
+        Serial.print(": ");
+        Serial.println(map(data, 0, 255, 0, color[2]));
+        Serial.println("");
+      }
     };
   }
 }
