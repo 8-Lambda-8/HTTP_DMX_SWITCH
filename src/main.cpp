@@ -4,6 +4,7 @@
 #include <SPI.h>
 
 char server[] = "red-old.lambda8.at";
+char path[] = "/gw/kiosk/";
 
 // Set the static IP address to use if the DHCP fails to assign
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -36,7 +37,7 @@ void loop() {
   if (millis() - requestTimer > 10000) {
     requestTimer = millis();
     if (client.connect(server, 80)) {
-      httpRequest(server, "/gw/kiosk/");
+      httpRequest(server, path);
     }
   }
 
