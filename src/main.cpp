@@ -3,7 +3,7 @@
 #include <Ethernet.h>
 #include <SPI.h>
 
-char server[] = "red-old.lambda8.at";
+char host[] = "red-old.lambda8.at";
 char path[] = "/gw/kiosk/";
 
 // Set the static IP address to use if the DHCP fails to assign
@@ -36,8 +36,8 @@ uint32_t requestTimer = 0;
 void loop() {
   if (millis() - requestTimer > 10000) {
     requestTimer = millis();
-    if (client.connect(server, 80)) {
-      httpRequest(server, path);
+    if (client.connect(host, 80)) {
+      httpRequest(host, path);
     }
   }
 
