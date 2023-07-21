@@ -3,6 +3,8 @@
 #include <Ethernet.h>
 #include <SPI.h>
 
+#include <EEPROM.h>
+
 char host[] = "red-old.lambda8.at";
 char path[] = "/gw/kiosk/";
 
@@ -22,6 +24,10 @@ uint8_t color[] = {255, 117, 17};
 
 void setup() {
   DMXSerial.init(DMXController);
+
+  EEPROM.get(0,color[0]);
+  EEPROM.get(1,color[1]);
+  EEPROM.get(2,color[2]);
 
   if (Ethernet.begin(mac) == 0) {
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -69,6 +75,10 @@ void loop() {
           color[0] = StrToHex(line.substring(15, 17).c_str());
           color[1] = StrToHex(line.substring(17, 19).c_str());
           color[2] = StrToHex(line.substring(19, 21).c_str());
+
+          EEPROM.update(0, color[0]);
+          EEPROM.update(1, color[1]);
+          EEPROM.update(2, color[2]);
         }
 
         if (line.length() < 2) {
