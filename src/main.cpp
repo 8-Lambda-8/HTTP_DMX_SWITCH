@@ -12,8 +12,10 @@ IPAddress ip(192, 168, 0, 177);
 IPAddress myDns(192, 168, 0, 1);
 
 EthernetClient client;
+EthernetServer server(80);
 
 void httpRequest(char* host, char* path);
+void httpResponse(EthernetClient client);
 
 uint16_t chanels[] = {106, 113, 120, 127, 134, 141};
 uint8_t color[] = {255, 117, 17};
@@ -29,6 +31,8 @@ void setup() {
     }
     Ethernet.begin(mac, ip, myDns);
   }
+  server.begin();
+
   delay(1000);
 }
 
@@ -54,6 +58,22 @@ void loop() {
     };
   }
 
+  EthernetClient client = server.available();
+  if (client) {
+    while (client.connected()) {
+      if (client.available()) {
+        String line = client.readStringUntil('\r');
+
+        if (line.length() < 2) {
+          httpResponse(client);
+          break;
+        }
+      }
+    }
+    delay(5);
+    client.stop();
+  }
+
   delay(1);
 }
 
@@ -65,4 +85,31 @@ void httpRequest(char* host, char* path) {
   client.println(host);
   client.println("Connection: close");
   client.println();
+}
+
+void httpResponse(EthernetClient client) {
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println("Connection: close");
+  client.println();
+
+  client.print("<!DOCTYPE html>");
+  client.print("<html><head>");
+  client.print("    <meta charset=\"UTF-8\" />");
+  client.print("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />");
+  client.print("    <title>Document</title>");
+  client.print("  </head>");
+  client.print("  <body>");
+  client.print("    <form>");
+  client.print("      <input type=\"color\" name=\"color\" value=\"#");
+  if (color[0] < 16) client.print("0");
+  client.print(color[0], 16);
+  if (color[1] < 16) client.print("0");
+  client.print(color[1], 16);
+  if (color[2] < 16) client.print("0");
+  client.print(color[2], 16);
+  client.print("\"/>");
+  client.print("      <input type=\"submit\" />");
+  client.print("    </form>");
+  client.println("</body></html>");
 }
