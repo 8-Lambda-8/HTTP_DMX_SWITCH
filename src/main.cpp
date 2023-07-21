@@ -36,6 +36,8 @@ void setup() {
   delay(1000);
 }
 
+int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
+
 uint32_t requestTimer = 0;
 void loop() {
   if (millis() - requestTimer > 10000) {
@@ -63,6 +65,11 @@ void loop() {
     while (client.connected()) {
       if (client.available()) {
         String line = client.readStringUntil('\r');
+        if (line.startsWith("GET /?color=%23")) {
+          color[0] = StrToHex(line.substring(15, 17).c_str());
+          color[1] = StrToHex(line.substring(17, 19).c_str());
+          color[2] = StrToHex(line.substring(19, 21).c_str());
+        }
 
         if (line.length() < 2) {
           httpResponse(client);
