@@ -29,6 +29,7 @@ uint16_t unten[] = {491};
 uint16_t loge[] = {492, 494};
 uint16_t treppe[] = {493};
 
+uint16_t* channels[] = {kiosk, unten, loge, treppe};
 uint8_t sizes[] = {6, 1, 2, 1};
 
 uint8_t color[] = {255, 117, 17};
@@ -94,15 +95,8 @@ void loop() {
 
     if (line.length() < 2 && x > -1) {
       uint8_t data = client.readString().toInt();
-      if (x == 0) {
-        writeChannels(kiosk, sizes[0], data, true);
-      } else if (x == 1) {
-        writeChannels(unten, sizes[1], data);
-      } else if (x == 2) {
-        writeChannels(loge, sizes[2], data);
-      } else if (x == 3) {
-        writeChannels(treppe, sizes[3], data);
-      }
+      writeChannels(channels[x], sizes[x], data, x == 0);
+
       DMXSerial.write(512, 0);
     };
   }
