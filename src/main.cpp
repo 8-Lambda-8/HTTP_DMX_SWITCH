@@ -1,9 +1,8 @@
 #include <Arduino.h>
 #include <DMXSerial.h>
+#include <EEPROM.h>
 #include <Ethernet.h>
 #include <SPI.h>
-
-#include <EEPROM.h>
 
 char host[] = "red-old.lambda8.at";
 char path[] = "/gw/kiosk/";
@@ -25,9 +24,9 @@ uint8_t color[] = {255, 117, 17};
 void setup() {
   DMXSerial.init(DMXController);
 
-  EEPROM.get(0,color[0]);
-  EEPROM.get(1,color[1]);
-  EEPROM.get(2,color[2]);
+  EEPROM.get(0, color[0]);
+  EEPROM.get(1, color[1]);
+  EEPROM.get(2, color[2]);
 
   if (Ethernet.begin(mac) == 0) {
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
