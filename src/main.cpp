@@ -109,6 +109,7 @@ void loop() {
           DMXSerial.write(chan, data);
         }
       }
+      DMXSerial.write(512, 0);
     };
   }
 
