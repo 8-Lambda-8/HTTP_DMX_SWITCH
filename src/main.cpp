@@ -22,10 +22,14 @@ EthernetServer server(80);
 void httpRequest(char* host, char* path);
 void httpResponse(EthernetClient client);
 
+void writeChannels(uint16_t channels[], uint8_t size, uint8_t data);
+
 uint16_t kiosk[] = {106, 113, 120, 127, 134, 141};
 uint16_t unten[] = {491};
 uint16_t loge[] = {492, 494};
 uint16_t treppe[] = {493};
+
+uint8_t sizes[] = {6, 1, 2, 1};
 
 uint8_t color[] = {255, 117, 17};
 
@@ -97,17 +101,11 @@ void loop() {
           DMXSerial.write(chan + 2, map(data, 0, 255, 0, color[2]));  // B
         }
       } else if (x == 1) {
-        for (auto&& chan : unten) {
-          DMXSerial.write(chan, data);
-        }
+        writeChannels(unten, sizes[1], data);
       } else if (x == 2) {
-        for (auto&& chan : loge) {
-          DMXSerial.write(chan, data);
-        }
+        writeChannels(loge, sizes[2], data);
       } else if (x == 3) {
-        for (auto&& chan : treppe) {
-          DMXSerial.write(chan, data);
-        }
+        writeChannels(treppe, sizes[3], data);
       }
       DMXSerial.write(512, 0);
     };
@@ -139,6 +137,12 @@ void loop() {
   }
 
   delay(1);
+}
+
+void writeChannels(uint16_t channels[], uint8_t size, uint8_t data) {
+  for (uint8_t i = 0; i < size; i++) {
+    DMXSerial.write(channels[i], data);
+  }
 }
 
 void httpRequest(char* host, char* path) {
