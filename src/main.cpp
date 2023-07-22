@@ -22,7 +22,7 @@ EthernetServer server(80);
 void httpRequest(char* host, char* path);
 void httpResponse(EthernetClient client);
 
-void writeChannels(uint16_t channels[], uint8_t size, uint8_t data);
+void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb = true);
 
 uint16_t kiosk[] = {106, 113, 120, 127, 134, 141};
 uint16_t unten[] = {491};
@@ -95,11 +95,7 @@ void loop() {
     if (line.length() < 2 && x > -1) {
       uint8_t data = client.readString().toInt();
       if (x == 0) {
-        for (auto&& chan : kiosk) {
-          DMXSerial.write(chan + 0, map(data, 0, 255, 0, color[0]));  // R
-          DMXSerial.write(chan + 1, map(data, 0, 255, 0, color[1]));  // G
-          DMXSerial.write(chan + 2, map(data, 0, 255, 0, color[2]));  // B
-        }
+        writeChannels(kiosk, sizes[0], data, true);
       } else if (x == 1) {
         writeChannels(unten, sizes[1], data);
       } else if (x == 2) {
@@ -139,9 +135,15 @@ void loop() {
   delay(1);
 }
 
-void writeChannels(uint16_t channels[], uint8_t size, uint8_t data) {
+void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb) {
   for (uint8_t i = 0; i < size; i++) {
-    DMXSerial.write(channels[i], data);
+    if (rgb) {
+      DMXSerial.write(channels[i] + 0, map(data, 0, 255, 0, color[0]));  // R
+      DMXSerial.write(channels[i] + 1, map(data, 0, 255, 0, color[1]));  // G
+      DMXSerial.write(channels[i] + 2, map(data, 0, 255, 0, color[2]));  // B
+    } else {
+      DMXSerial.write(channels[i], data);
+    }
   }
 }
 
