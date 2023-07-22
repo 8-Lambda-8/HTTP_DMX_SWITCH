@@ -5,7 +5,11 @@
 #include <SPI.h>
 
 char host[] = "red-old.lambda8.at";
-char path[] = "/gw/kiosk/";
+
+char pathKiosk[] = "/gw/kiosk/";
+char pathUnten[] = "/gw/unten/";
+char pathLoge[] = "/gw/loge/";
+char pathTreppe[] = "/gw/treppe/";
 
 // Set the static IP address to use if the DHCP fails to assign
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -18,7 +22,11 @@ EthernetServer server(80);
 void httpRequest(char* host, char* path);
 void httpResponse(EthernetClient client);
 
-uint16_t chanels[] = {106, 113, 120, 127, 134, 141};
+uint16_t kiosk[] = {106, 113, 120, 127, 134, 141};
+uint16_t unten[] = {491};
+uint16_t loge[] = {492, 494};
+uint16_t treppe[] = {493};
+
 uint8_t color[] = {255, 117, 17};
 
 void setup() {
@@ -43,24 +51,63 @@ void setup() {
 
 int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
 
+boolean requested[] = {false, false, false};
 uint32_t requestTimer = 0;
 void loop() {
   if (millis() - requestTimer > 10000) {
     requestTimer = millis();
+    requested[0] = false;
+    requested[1] = false;
+    requested[2] = false;
     if (client.connect(host, 80)) {
-      httpRequest(host, path);
+      httpRequest(host, pathTreppe);
+    }
+  } else if (millis() - requestTimer > 7500 && !requested[0]) {
+    requested[0] = true;
+    if (client.connect(host, 80)) {
+      httpRequest(host, pathLoge);
+    }
+  } else if (millis() - requestTimer > 5000 && !requested[1]) {
+    requested[1] = true;
+    if (client.connect(host, 80)) {
+      httpRequest(host, pathUnten);
+    }
+  } else if (millis() - requestTimer > 2500 && !requested[2]) {
+    requested[2] = true;
+    if (client.connect(host, 80)) {
+      httpRequest(host, pathKiosk);
     }
   }
 
-  if (client.available()) {
+  int8_t x = -1;
+  while (client.available()) {
     String line = client.readStringUntil('\r');
-    if (line.length() < 2) {
-      uint8_t data = client.readString().toInt();
 
-      for (auto&& chan : chanels) {
-        DMXSerial.write(chan + 0, map(data, 0, 255, 0, color[0]));  // R
-        DMXSerial.write(chan + 1, map(data, 0, 255, 0, color[1]));  // G
-        DMXSerial.write(chan + 2, map(data, 0, 255, 0, color[2]));  // B
+    if (line.startsWith("\nlocation: kiosk")) x = 0;
+    if (line.startsWith("\nlocation: unten")) x = 1;
+    if (line.startsWith("\nlocation: loge")) x = 2;
+    if (line.startsWith("\nlocation: treppe")) x = 3;
+
+    if (line.length() < 2 && x > -1) {
+      uint8_t data = client.readString().toInt();
+      if (x == 0) {
+        for (auto&& chan : kiosk) {
+          DMXSerial.write(chan + 0, map(data, 0, 255, 0, color[0]));  // R
+          DMXSerial.write(chan + 1, map(data, 0, 255, 0, color[1]));  // G
+          DMXSerial.write(chan + 2, map(data, 0, 255, 0, color[2]));  // B
+        }
+      } else if (x == 1) {
+        for (auto&& chan : unten) {
+          DMXSerial.write(chan, data);
+        }
+      } else if (x == 2) {
+        for (auto&& chan : loge) {
+          DMXSerial.write(chan, data);
+        }
+      } else if (x == 3) {
+        for (auto&& chan : treppe) {
+          DMXSerial.write(chan, data);
+        }
       }
     };
   }
