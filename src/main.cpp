@@ -11,6 +11,8 @@ char pathUnten[] = "/gw/unten/";
 char pathLoge[] = "/gw/loge/";
 char pathTreppe[] = "/gw/treppe/";
 
+char* paths[] = {pathKiosk, pathUnten, pathLoge, pathTreppe};
+
 // Set the static IP address to use if the DHCP fails to assign
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 0, 177);
@@ -56,31 +58,15 @@ void setup() {
 
 int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
 
-boolean requested[] = {false, false, false};
 uint32_t requestTimer = 0;
+uint8_t request = 0;
 void loop() {
-  if (millis() - requestTimer > 10000) {
+  if (millis() - requestTimer > 2000) {
     requestTimer = millis();
-    requested[0] = false;
-    requested[1] = false;
-    requested[2] = false;
     if (client.connect(host, 80)) {
-      httpRequest(host, pathTreppe);
-    }
-  } else if (millis() - requestTimer > 7500 && !requested[0]) {
-    requested[0] = true;
-    if (client.connect(host, 80)) {
-      httpRequest(host, pathLoge);
-    }
-  } else if (millis() - requestTimer > 5000 && !requested[1]) {
-    requested[1] = true;
-    if (client.connect(host, 80)) {
-      httpRequest(host, pathUnten);
-    }
-  } else if (millis() - requestTimer > 2500 && !requested[2]) {
-    requested[2] = true;
-    if (client.connect(host, 80)) {
-      httpRequest(host, pathKiosk);
+      httpRequest(host, paths[request]);
+      request++;
+      if (request >= 4) request = 4;
     }
   }
 
