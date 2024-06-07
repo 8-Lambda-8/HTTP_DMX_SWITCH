@@ -70,10 +70,10 @@ void loop() {
     Serial.println(col);
     Serial.println(col.substring(1, 3));
     Serial.println(col.substring(3, 5));
-    Serial.println(col.substring(5, 6));
+    Serial.println(col.substring(5, 7));
     color[0] = StrToHex(col.substring(1, 3).c_str());
     color[1] = StrToHex(col.substring(3, 5).c_str());
-    color[2] = StrToHex(col.substring(5, 6).c_str());
+    color[2] = StrToHex(col.substring(5, 7).c_str());
 
     EEPROM.update(0, color[0]);
     EEPROM.update(1, color[1]);
@@ -90,6 +90,8 @@ void loop() {
 }
 
 void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb) {
+  Serial.print(data);
+  Serial.println(":");
   for (uint8_t i = 0; i < size; i++) {
     Serial.print(channels[i]);
     Serial.print(",");
@@ -102,6 +104,7 @@ void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb)
       // DMXSerial.write(channels[i], data);
     }
   }
+    Serial.println("");
 }
 
 void httpRequest(char* host, char* path) {
