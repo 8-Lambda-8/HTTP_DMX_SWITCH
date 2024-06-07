@@ -48,7 +48,7 @@ void setup() {
   }
   Serial.println(Ethernet.localIP());
 
-  delay(1000);
+  Serial.print("End Setup");
 }
 
 int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
@@ -57,17 +57,23 @@ uint32_t requestTimer = 0;
 void loop() {
   if (millis() - requestTimer > 500) {
     requestTimer = millis();
-    httpRequest(host, path);
+    if (client.connect(host, 80)) {
+      httpRequest(host, path);
+    }
   }
 
   while (client.available()) {
-    Serial.print(client.readStringUntil('\r'));
+    Serial.println(client.readStringUntil('['));
 
     String col = client.readStringUntil(',');
-    Serial.print(col);
-    color[0] = StrToHex(col.substring(2, 4).c_str());
-    color[1] = StrToHex(col.substring(4, 6).c_str());
-    color[2] = StrToHex(col.substring(6, 8).c_str());
+    Serial.println();
+    Serial.println(col);
+    Serial.println(col.substring(1, 3));
+    Serial.println(col.substring(3, 5));
+    Serial.println(col.substring(5, 6));
+    color[0] = StrToHex(col.substring(1, 3).c_str());
+    color[1] = StrToHex(col.substring(3, 5).c_str());
+    color[2] = StrToHex(col.substring(5, 6).c_str());
 
     EEPROM.update(0, color[0]);
     EEPROM.update(1, color[1]);
