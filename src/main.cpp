@@ -62,7 +62,7 @@ void loop() {
     String col = client.readStringUntil(',');
     color[0] = StrToHex(col.substring(1, 3).c_str());
     color[1] = StrToHex(col.substring(3, 5).c_str());
-    color[2] = StrToHex(col.substring(5, 6).c_str());
+    color[2] = StrToHex(col.substring(5, 7).c_str());
 
     EEPROM.update(0, color[0]);
     EEPROM.update(1, color[1]);
