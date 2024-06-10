@@ -78,7 +78,8 @@ void loop() {
     writeChannels(channels[0], sizes[0], client.readStringUntil(',').toInt(), true);   // kiosk
     writeChannels(channels[2], sizes[2], client.readStringUntil(',').toInt(), false);  // loge
     writeChannels(channels[1], sizes[1], client.readStringUntil(',').toInt(), false);  // unten
-    writeChannels(channels[3], sizes[3], client.readStringUntil(',').toInt(), false);  // treppe
+    writeChannels(channels[3], sizes[3], client.readStringUntil(']').toInt(), false);  // treppe
+    client.read();
 
     // DMXSerial.write(512, 0);
   }
