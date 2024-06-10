@@ -48,7 +48,7 @@ void setup() {
   }
   Serial.println(Ethernet.localIP());
 
-  Serial.print("End Setup");
+  Serial.println("End Setup");
 }
 
 int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
@@ -62,8 +62,14 @@ void loop() {
     }
   }
 
-  while (client.available()) {
-    Serial.println(client.readStringUntil('['));
+  if (client.available()) {
+    while (client.read() != ' ');
+    if (client.readStringUntil(' ') != "200") {
+      Serial.println("not status 200");
+      return;
+    }
+    
+    while (client.read() != '[');
 
     String col = client.readStringUntil(',');
     Serial.println();
@@ -81,7 +87,7 @@ void loop() {
     writeChannels(channels[2], sizes[2], client.readStringUntil(',').toInt(), false);  // loge
     writeChannels(channels[1], sizes[1], client.readStringUntil(',').toInt(), false);  // unten
     writeChannels(channels[3], sizes[3], client.readStringUntil(']').toInt(), false);  // treppe
-    client.read();
+    while (client.available()) client.read();
 
     // DMXSerial.write(512, 0);
   }
@@ -103,7 +109,7 @@ void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb)
       // DMXSerial.write(channels[i], data);
     }
   }
-    Serial.println("");
+    Serial.println("\n");
 }
 
 void httpRequest(char* host, char* path) {
