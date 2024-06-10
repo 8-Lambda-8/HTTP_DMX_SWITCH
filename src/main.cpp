@@ -57,12 +57,18 @@ void loop() {
     }
   }
 
-  while (client.available()) {
+  if (client.available()) {
+    while (client.read() != ' ');
+    if (client.readStringUntil(' ') != "200") {
+      return;
+    }
+    
+    while (client.read() != '[');
 
     String col = client.readStringUntil(',');
     
     for(uint8_t i = 0; i < 3; i++){
-      color[i] = StrToHex(col.substring(i + 1, i + 2).c_str());
+      color[i] = StrToHex(col.substring(i + 1, i + 3).c_str());
       EEPROM.update(i, color[i]);
     }
 
@@ -70,7 +76,7 @@ void loop() {
     writeChannels(channels[2], sizes[2], client.readStringUntil(',').toInt(), false);  // loge
     writeChannels(channels[1], sizes[1], client.readStringUntil(',').toInt(), false);  // unten
     writeChannels(channels[3], sizes[3], client.readStringUntil(']').toInt(), false);  // treppe
-    client.read();
+    while (client.available()) client.read();
 
     DMXSerial.write(512, 0);
   }
