@@ -70,8 +70,10 @@ void loop() {
     Serial.println(col);
     
     for(uint8_t i = 0; i < 3; i++){
-      Serial.println(col.substring(i + 1, i + 3));
-      color[i] = StrToHex(col.substring(i + 1, i + 2).c_str());
+      Serial.print(col.substring(i + 1, i + 3));
+      Serial.print(" ");
+      Serial.println(StrToHex(col.substring(i + 1, i + 3).c_str()));
+      color[i] = StrToHex(col.substring(i + 1, i + 3).c_str());
       EEPROM.update(i, color[i]);
     }
 
