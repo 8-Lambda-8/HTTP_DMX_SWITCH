@@ -68,16 +68,12 @@ void loop() {
     String col = client.readStringUntil(',');
     Serial.println();
     Serial.println(col);
-    Serial.println(col.substring(1, 3));
-    Serial.println(col.substring(3, 5));
-    Serial.println(col.substring(5, 7));
-    color[0] = StrToHex(col.substring(1, 3).c_str());
-    color[1] = StrToHex(col.substring(3, 5).c_str());
-    color[2] = StrToHex(col.substring(5, 7).c_str());
-
-    EEPROM.update(0, color[0]);
-    EEPROM.update(1, color[1]);
-    EEPROM.update(2, color[2]);
+    
+    for(uint8_t i = 0; i < 3; i++){
+      Serial.println(col.substring(i + 1, i + 3));
+      color[i] = StrToHex(col.substring(i + 1, i + 2).c_str());
+      EEPROM.update(i, color[i]);
+    }
 
     writeChannels(channels[0], sizes[0], client.readStringUntil(',').toInt(), true);   // kiosk
     writeChannels(channels[2], sizes[2], client.readStringUntil(',').toInt(), false);  // loge
