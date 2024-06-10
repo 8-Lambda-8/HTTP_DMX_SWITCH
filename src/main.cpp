@@ -1,5 +1,5 @@
 #include <Arduino.h>
-// #include <DMXSerial.h>
+#include <DMXSerial.h>
 #include <EEPROM.h>
 #include <Ethernet.h>
 #include <SPI.h>
@@ -30,9 +30,7 @@ uint8_t sizes[] = {6, 1, 2, 1};
 uint8_t color[] = {255, 117, 17};
 
 void setup() {
-  // DMXSerial.init(DMXController);
-  Serial.begin(9600);
-  Serial.println("Start");
+  DMXSerial.init(DMXController);
 
   EEPROM.get(0, color[0]);
   EEPROM.get(1, color[1]);
@@ -46,9 +44,6 @@ void setup() {
     }
     Ethernet.begin(mac, ip, myDns);
   }
-  Serial.println(Ethernet.localIP());
-
-  Serial.print("End Setup");
 }
 
 int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
@@ -63,14 +58,9 @@ void loop() {
   }
 
   while (client.available()) {
-    Serial.println(client.readStringUntil('['));
 
     String col = client.readStringUntil(',');
-    Serial.println();
-    Serial.println(col);
-    
     for(uint8_t i = 0; i < 3; i++){
-      Serial.println(col.substring(i + 1, i + 3));
       color[i] = StrToHex(col.substring(i + 1, i + 2).c_str());
       EEPROM.update(i, color[i]);
     }
@@ -81,27 +71,21 @@ void loop() {
     writeChannels(channels[3], sizes[3], client.readStringUntil(']').toInt(), false);  // treppe
     client.read();
 
-    // DMXSerial.write(512, 0);
+    DMXSerial.write(512, 0);
   }
   delay(1);
 }
 
 void writeChannels(uint16_t channels[], uint8_t size, uint8_t data, boolean rgb) {
-  Serial.print(data);
-  Serial.println(":");
   for (uint8_t i = 0; i < size; i++) {
-    Serial.print(channels[i]);
-    Serial.print(",");
-
     if (rgb) {
-      // DMXSerial.write(channels[i] + 0, map(data, 0, 255, 0, color[0]));  // R
-      // DMXSerial.write(channels[i] + 1, map(data, 0, 255, 0, color[1]));  // G
-      // DMXSerial.write(channels[i] + 2, map(data, 0, 255, 0, color[2]));  // B
+      DMXSerial.write(channels[i] + 0, map(data, 0, 255, 0, color[0]));  // R
+      DMXSerial.write(channels[i] + 1, map(data, 0, 255, 0, color[1]));  // G
+      DMXSerial.write(channels[i] + 2, map(data, 0, 255, 0, color[2]));  // B
     } else {
-      // DMXSerial.write(channels[i], data);
+      DMXSerial.write(channels[i], data);
     }
   }
-    Serial.println("");
 }
 
 void httpRequest(char* host, char* path) {
