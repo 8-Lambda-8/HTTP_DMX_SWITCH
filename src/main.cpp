@@ -55,7 +55,7 @@ int StrToHex(const char str[]) { return (int)strtol(str, 0, 16); }
 
 uint32_t requestTimer = 0;
 void loop() {
-  if (millis() - requestTimer > 500) {
+  if (millis() - requestTimer > 5000) {
     requestTimer = millis();
     if (client.connect(host, 80)) {
       httpRequest(host, path);
